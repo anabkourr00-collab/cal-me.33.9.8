@@ -1,0 +1,25 @@
+{
+  "name": "My Days",
+  "short_name": "My Days",
+  "description": "Personal Gregorian and Hijri day calendar",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#09080d",
+  "theme_color": "#09080d",
+  "orientation": "any",
+  "lang": "en",
+  "dir": "ltr",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
