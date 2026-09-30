@@ -1,0 +1,1092 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#09080d">
+  <meta name="description" content="Personal day calendar">
+  <link rel="manifest" href="manifest.json">
+  <title>My Days</title>
+
+  <style>
+    :root {
+      --bg: #09080d;
+      --card: #121019;
+      --card2: #17141f;
+      --border: #292431;
+      --text: #f5f2fa;
+      --muted: #918a9e;
+      --purple: #8b5cf6;
+      --purple2: #6d3df5;
+      --green: #39d98a;
+      --green-bg: rgba(57,217,138,.12);
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top right, rgba(109,61,245,.10), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    button, input {
+      font: inherit;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1100px, 100%);
+      margin: auto;
+      padding: 18px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 22px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .logo {
+      width: 46px;
+      height: 46px;
+      border-radius: 15px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(145deg, var(--purple), var(--purple2));
+      font-size: 23px;
+      font-weight: bold;
+      box-shadow: 0 8px 25px rgba(139,92,246,.22);
+    }
+
+    .brand h1 {
+      margin: 0;
+      font-size: 20px;
+    }
+
+    .brand span {
+      display: block;
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 4px;
+    }
+
+    .icon-btn {
+      width: 45px;
+      height: 45px;
+      border: 1px solid var(--border);
+      background: var(--card);
+      color: var(--text);
+      border-radius: 14px;
+      font-size: 20px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px;
+    }
+
+    .period-info {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.8;
+    }
+
+    .period-info strong {
+      color: var(--text);
+    }
+
+    .create-btn {
+      min-height: 45px;
+      border: 0;
+      border-radius: 14px;
+      padding: 0 18px;
+      color: white;
+      font-weight: bold;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      box-shadow: 0 7px 22px rgba(109,61,245,.18);
+      white-space: nowrap;
+    }
+
+    /* Calendar */
+
+    .calendar-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 17px;
+    }
+
+    .calendar-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 17px;
+    }
+
+    .calendar-title {
+      font-size: 17px;
+      font-weight: bold;
+    }
+
+    .calendar-sub {
+      color: var(--muted);
+      font-size: 12px;
+      margin-top: 5px;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 11px;
+      text-align: right;
+    }
+
+    .days {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(0, 1fr));
+      gap: 8px;
+    }
+
+    .day {
+      position: relative;
+      min-width: 0;
+      min-height: 142px;
+      background: var(--card2);
+      border: 1px solid var(--border);
+      border-radius: 15px;
+      padding: 9px 7px 10px;
+      user-select: none;
+      -webkit-user-select: none;
+      overflow: hidden;
+      transition: background .18s, border-color .18s;
+      touch-action: pan-y;
+    }
+
+    .day.completed {
+      background: var(--green-bg);
+      border-color: rgba(57,217,138,.55);
+    }
+
+    .month-number {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      max-width: calc(100% - 16px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #b9a4ff;
+      font-size: 10px;
+      background: rgba(139,92,246,.12);
+      border: 1px solid rgba(139,92,246,.2);
+      border-radius: 7px;
+      padding: 4px 6px;
+    }
+
+    .day-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 25px;
+      margin-top: 28px;
+      margin-bottom: 7px;
+      padding: 0 8px;
+      background: rgba(139,92,246,.13);
+      border: 1px solid rgba(139,92,246,.22);
+      border-radius: 7px;
+      color: #c7b5ff;
+      font-size: 11px;
+      font-weight: bold;
+    }
+
+    .weekday {
+      text-align: center;
+      font-size: 12px;
+      font-weight: bold;
+      margin: 1px 0 10px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .dates {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 3px;
+      align-items: start;
+      text-align: center;
+      direction: ltr;
+    }
+
+    .date-side {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      align-items: center;
+    }
+
+    .date-label {
+      color: var(--muted);
+      font-size: 9px;
+      white-space: nowrap;
+    }
+
+    .date-value {
+      font-size: 11px;
+      font-weight: bold;
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .week-number {
+      display: block;
+      width: fit-content;
+      max-width: 100%;
+      margin: 11px auto 0;
+      padding: 5px 8px 3px;
+      text-align: center;
+      font-size: 10px;
+      color: var(--muted);
+      border-bottom: 1px solid var(--purple);
+      white-space: nowrap;
+    }
+
+    .check {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      width: 19px;
+      height: 19px;
+      display: grid;
+      place-items: center;
+      color: var(--green);
+      background: rgba(57,217,138,.12);
+      border: 1px solid rgba(57,217,138,.35);
+      border-radius: 50%;
+      font-size: 12px;
+      opacity: 0;
+      transform: scale(.8);
+      transition: .18s;
+    }
+
+    .completed .check {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    .empty {
+      grid-column: 1 / -1;
+      text-align: center;
+      color: var(--muted);
+      padding: 55px 15px;
+      line-height: 1.8;
+      font-size: 13px;
+    }
+
+    .legend {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      color: var(--muted);
+      font-size: 11px;
+      margin-top: 17px;
+    }
+
+    .legend span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--purple);
+    }
+
+    .dot.green {
+      background: var(--green);
+    }
+
+    /* Create modal */
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background: rgba(0,0,0,.72);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+    }
+
+    .modal-overlay.open {
+      display: flex;
+    }
+
+    .modal {
+      width: min(440px, 100%);
+      max-height: 90vh;
+      overflow-y: auto;
+      background: linear-gradient(145deg, #17141f, #100e16);
+      border: 1px solid #342b43;
+      border-radius: 23px;
+      padding: 22px;
+      box-shadow: 0 25px 80px rgba(0,0,0,.5);
+      animation: modalIn .2s ease-out;
+    }
+
+    @keyframes modalIn {
+      from {
+        opacity: 0;
+        transform: translateY(12px) scale(.98);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+      }
+    }
+
+    .modal-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 7px;
+    }
+
+    .modal-title {
+      font-size: 19px;
+      font-weight: bold;
+    }
+
+    .close-btn {
+      width: 36px;
+      height: 36px;
+      border: 1px solid var(--border);
+      border-radius: 11px;
+      color: var(--text);
+      background: var(--card2);
+      font-size: 20px;
+    }
+
+    .modal-description {
+      color: var(--muted);
+      font-size: 12px;
+      line-height: 1.7;
+      margin-bottom: 20px;
+    }
+
+    .field {
+      margin-bottom: 15px;
+    }
+
+    .field label {
+      display: block;
+      color: #c5bdcf;
+      font-size: 12px;
+      margin-bottom: 8px;
+    }
+
+    .field input {
+      width: 100%;
+      height: 49px;
+      background: #0d0b12;
+      border: 1px solid var(--border);
+      color: var(--text);
+      border-radius: 13px;
+      padding: 0 12px;
+      outline: none;
+      color-scheme: dark;
+    }
+
+    .field input:focus {
+      border-color: var(--purple);
+      box-shadow: 0 0 0 3px rgba(139,92,246,.09);
+    }
+
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 21px;
+    }
+
+    .modal-actions button {
+      flex: 1;
+      min-height: 48px;
+      border-radius: 13px;
+    }
+
+    .cancel-btn {
+      color: var(--text);
+      background: var(--card2);
+      border: 1px solid var(--border);
+    }
+
+    .submit-btn {
+      color: white;
+      background: linear-gradient(135deg, var(--purple), var(--purple2));
+      border: 0;
+      font-weight: bold;
+    }
+
+    @media(max-width: 850px) {
+      .days {
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+      }
+    }
+
+    @media(max-width: 650px) {
+      .days {
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+      }
+
+      .day {
+        min-height: 140px;
+      }
+    }
+
+    @media(max-width: 500px) {
+      .app {
+        padding: 12px;
+      }
+
+      .days {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 7px;
+      }
+
+      .day {
+        min-height: 142px;
+        padding: 8px 5px 10px;
+      }
+
+      .date-value {
+        font-size: 10px;
+      }
+
+      .date-label {
+        font-size: 9px;
+      }
+
+      .weekday {
+        font-size: 11px;
+      }
+
+      .calendar-card {
+        padding: 12px;
+      }
+
+      .hint {
+        font-size: 10px;
+      }
+    }
+
+    @media(max-width: 350px) {
+      .days {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <main class="app">
+
+    <header>
+      <div class="brand">
+        <div class="logo">▦</div>
+        <div>
+          <h1>My Days</h1>
+          <span>Personal Calendar</span>
+        </div>
+      </div>
+
+      <button
+        id="resetBtn"
+        class="icon-btn"
+        type="button"
+        aria-label="Reset calendar"
+        title="Reset calendar"
+      >↻</button>
+    </header>
+
+
+    <section class="toolbar">
+
+      <div id="periodInfo" class="period-info">
+        No period created yet
+      </div>
+
+      <button
+        id="openModalBtn"
+        class="create-btn"
+        type="button"
+      >＋ Create</button>
+
+    </section>
+
+
+    <section class="calendar-card">
+
+      <div class="calendar-head">
+        <div>
+          <div class="calendar-title">Calendar</div>
+          <div class="calendar-sub">
+            Press and hold a square to mark it
+          </div>
+        </div>
+
+        <div class="hint">
+          Week changes every 7 days<br>
+          Month changes every 30 days
+        </div>
+      </div>
+
+      <div id="days" class="days">
+        <div class="empty">
+          Create a date range to get started.
+        </div>
+      </div>
+
+      <div class="legend">
+        <span><i class="dot"></i> Incomplete</span>
+        <span><i class="dot green"></i> Completed</span>
+        <span>Hold a square to toggle its status</span>
+      </div>
+
+    </section>
+
+  </main>
+
+
+  <!-- Create Modal -->
+
+  <div
+    id="modalOverlay"
+    class="modal-overlay"
+    role="dialog"
+    aria-modal="true"
+    aria-labelledby="modalTitle"
+  >
+
+    <form id="createForm" class="modal">
+
+      <div class="modal-head">
+        <div id="modalTitle" class="modal-title">
+          Create Calendar
+        </div>
+
+        <button
+          id="closeModalBtn"
+          class="close-btn"
+          type="button"
+          aria-label="Close"
+        >×</button>
+      </div>
+
+      <div class="modal-description">
+        Choose a start date and an end date.
+        The number of squares will be calculated automatically.
+      </div>
+
+      <div class="field">
+        <label for="startDate">Start Date — Gregorian</label>
+        <input id="startDate" type="date" required>
+      </div>
+
+      <div class="field">
+        <label for="endDate">End Date — Gregorian</label>
+        <input id="endDate" type="date" required>
+      </div>
+
+      <div class="modal-actions">
+        <button
+          id="cancelBtn"
+          class="cancel-btn"
+          type="button"
+        >Cancel</button>
+
+        <button
+          class="submit-btn"
+          type="submit"
+        >Create</button>
+      </div>
+
+    </form>
+
+  </div>
+
+
+<script>
+"use strict";
+
+const STORAGE_KEY = "my_days_calendar_v2";
+
+let appData = {
+  startDate: "",
+  endDate: "",
+  days: []
+};
+
+const daysContainer = document.getElementById("days");
+const modalOverlay = document.getElementById("modalOverlay");
+const createForm = document.getElementById("createForm");
+const startInput = document.getElementById("startDate");
+const endInput = document.getElementById("endDate");
+const periodInfo = document.getElementById("periodInfo");
+
+
+/* Date helpers */
+
+function parseDate(value) {
+  if (!value) return null;
+
+  const parts = value.split("-").map(Number);
+
+  return new Date(
+    Date.UTC(parts[0], parts[1] - 1, parts[2])
+  );
+}
+
+function formatDate(date) {
+  const y = date.getUTCFullYear();
+  const m = String(date.getUTCMonth() + 1).padStart(2, "0");
+  const d = String(date.getUTCDate()).padStart(2, "0");
+
+  return `${y}-${m}-${d}`;
+}
+
+function addDays(date, amount) {
+  const copy = new Date(date.getTime());
+  copy.setUTCDate(copy.getUTCDate() + amount);
+  return copy;
+}
+
+function dayDifference(a, b) {
+  return Math.round(
+    (b.getTime() - a.getTime()) / 86400000
+  );
+}
+
+function formatGregorian(date) {
+  return new Intl.DateTimeFormat("en-GB", {
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    timeZone: "UTC"
+  }).format(date);
+}
+
+function formatHijri(date) {
+  try {
+    return new Intl.DateTimeFormat(
+      "en-GB-u-ca-islamic-umalqura-nu-latn",
+      {
+        day: "2-digit",
+        month: "2-digit",
+        year: "numeric",
+        timeZone: "UTC"
+      }
+    ).format(date);
+  } catch (error) {
+    return "--/--/----";
+  }
+}
+
+function formatWeekday(date) {
+  return new Intl.DateTimeFormat("en-US", {
+    weekday: "long",
+    timeZone: "UTC"
+  }).format(date);
+}
+
+
+/* Modal */
+
+function openModal() {
+  modalOverlay.classList.add("open");
+}
+
+function closeModal() {
+  modalOverlay.classList.remove("open");
+}
+
+document.getElementById("openModalBtn")
+  .addEventListener("click", openModal);
+
+document.getElementById("closeModalBtn")
+  .addEventListener("click", closeModal);
+
+document.getElementById("cancelBtn")
+  .addEventListener("click", closeModal);
+
+modalOverlay.addEventListener("click", event => {
+  if (event.target === modalOverlay) {
+    closeModal();
+  }
+});
+
+document.addEventListener("keydown", event => {
+  if (event.key === "Escape") {
+    closeModal();
+  }
+});
+
+
+/* Storage */
+
+function save() {
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(appData)
+    );
+  } catch (error) {
+    console.error("Could not save calendar:", error);
+  }
+}
+
+function load() {
+  try {
+    const saved = localStorage.getItem(STORAGE_KEY);
+
+    if (!saved) return;
+
+    const parsed = JSON.parse(saved);
+
+    if (
+      parsed &&
+      Array.isArray(parsed.days)
+    ) {
+      appData = {
+        startDate: parsed.startDate || "",
+        endDate: parsed.endDate || "",
+        days: parsed.days
+      };
+
+      startInput.value = appData.startDate;
+      endInput.value = appData.endDate;
+    }
+  } catch (error) {
+    console.error("Could not load calendar:", error);
+  }
+}
+
+
+/* Create calendar */
+
+createForm.addEventListener("submit", event => {
+  event.preventDefault();
+
+  const start = parseDate(startInput.value);
+  const end = parseDate(endInput.value);
+
+  if (!start || !end) {
+    alert("Please choose both dates.");
+    return;
+  }
+
+  if (end < start) {
+    alert("The end date must be on or after the start date.");
+    return;
+  }
+
+  const count = dayDifference(start, end) + 1;
+
+  if (count > 1000) {
+    alert("Please choose a period of 1000 days or less.");
+    return;
+  }
+
+  const oldDays = appData.days || [];
+  const oldStatus = new Map(
+    oldDays.map(item => [item.date, !!item.completed])
+  );
+
+  const newDays = [];
+
+  for (let i = 0; i < count; i++) {
+    const date = formatDate(addDays(start, i));
+
+    newDays.push({
+      date,
+      completed: oldStatus.get(date) || false
+    });
+  }
+
+  appData = {
+    startDate: startInput.value,
+    endDate: endInput.value,
+    days: newDays
+  };
+
+  save();
+  render();
+  closeModal();
+});
+
+
+/* Period information */
+
+function renderPeriodInfo() {
+  if (!appData.days.length) {
+    periodInfo.textContent = "No period created yet";
+    return;
+  }
+
+  periodInfo.innerHTML = `
+    <strong>${appData.days.length}</strong> days
+    <br>
+    ${appData.startDate} → ${appData.endDate}
+  `;
+}
+
+
+/* Day cards */
+
+function renderDays() {
+  daysContainer.innerHTML = "";
+
+  if (!appData.days.length) {
+    daysContainer.innerHTML = `
+      <div class="empty">
+        No calendar yet.<br>
+        Press Create to choose your dates.
+      </div>
+    `;
+    return;
+  }
+
+  appData.days.forEach((item, index) => {
+    const date = parseDate(item.date);
+
+    /*
+      Week and month are based only on the
+      position inside the selected period.
+
+      Days 1-7   = Week 1
+      Days 8-14  = Week 2
+
+      Days 1-30  = Month 1
+      Days 31-60 = Month 2
+    */
+
+    const weekNumber = Math.floor(index / 7) + 1;
+    const monthNumber = Math.floor(index / 30) + 1;
+
+    const card = document.createElement("div");
+
+    card.className = "day" + (
+      item.completed ? " completed" : ""
+    );
+
+    card.innerHTML = `
+      <div class="month-number">
+        MONTH ${monthNumber}
+      </div>
+
+      <div class="check">✓</div>
+
+      <div class="day-number">
+        DAY ${index + 1}
+      </div>
+
+      <div class="weekday">
+        ${formatWeekday(date)}
+      </div>
+
+      <div class="dates">
+
+        <div class="date-side">
+          <div class="date-label">Gregorian</div>
+          <div class="date-value">
+            ${formatGregorian(date)}
+          </div>
+        </div>
+
+        <div class="date-side">
+          <div class="date-label">Hijri</div>
+          <div class="date-value">
+            ${formatHijri(date)}
+          </div>
+        </div>
+
+      </div>
+
+      <div class="week-number">
+        WEEK ${weekNumber}
+      </div>
+    `;
+
+    setupLongPress(card, index);
+
+    daysContainer.appendChild(card);
+  });
+}
+
+
+/* Long press */
+
+function setupLongPress(element, index) {
+  let timer = null;
+  let startX = 0;
+  let startY = 0;
+  let longPressTriggered = false;
+
+  function clearPress() {
+    if (timer !== null) {
+      clearTimeout(timer);
+      timer = null;
+    }
+  }
+
+  function startPress(event) {
+    if (event.type === "mousedown" && event.button !== 0) {
+      return;
+    }
+
+    const point = event.touches
+      ? event.touches[0]
+      : event;
+
+    startX = point.clientX;
+    startY = point.clientY;
+    longPressTriggered = false;
+
+    clearPress();
+
+    timer = setTimeout(() => {
+      longPressTriggered = true;
+      toggleDay(index);
+
+      if (navigator.vibrate) {
+        navigator.vibrate(35);
+      }
+    }, 650);
+  }
+
+  function movePress(event) {
+    const point = event.touches
+      ? event.touches[0]
+      : event;
+
+    if (
+      Math.abs(point.clientX - startX) > 12 ||
+      Math.abs(point.clientY - startY) > 12
+    ) {
+      clearPress();
+    }
+  }
+
+  element.addEventListener("touchstart", startPress, {
+    passive: true
+  });
+
+  element.addEventListener("touchmove", movePress, {
+    passive: true
+  });
+
+  element.addEventListener("touchend", clearPress);
+  element.addEventListener("touchcancel", clearPress);
+
+  element.addEventListener("mousedown", startPress);
+  element.addEventListener("mousemove", movePress);
+  element.addEventListener("mouseup", clearPress);
+  element.addEventListener("mouseleave", clearPress);
+
+  element.addEventListener("contextmenu", event => {
+    event.preventDefault();
+  });
+}
+
+
+/* Toggle completed status */
+
+function toggleDay(index) {
+  if (!appData.days[index]) return;
+
+  appData.days[index].completed =
+    !appData.days[index].completed;
+
+  save();
+  renderDays();
+}
+
+
+/* Reset */
+
+document.getElementById("resetBtn")
+  .addEventListener("click", () => {
+    if (!confirm("Delete the entire calendar?")) {
+      return;
+    }
+
+    appData = {
+      startDate: "",
+      endDate: "",
+      days: []
+    };
+
+    startInput.value = "";
+    endInput.value = "";
+
+    save();
+    render();
+  });
+
+
+/* Render */
+
+function render() {
+  renderPeriodInfo();
+  renderDays();
+}
+
+
+/* Start */
+
+load();
+render();
+
+
+/* PWA */
+
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker
+      .register("./sw.js")
+      .catch(error => console.log(error));
+  });
+}
+</script>
+
+</body>
+  </html>
